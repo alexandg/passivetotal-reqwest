@@ -142,6 +142,24 @@ fn parse_args() -> ArgMatches<'static> {
          (@subcommand tags =>
           (about: "Retrieves tags for a given artifact.")
           (@arg QUERY: +required "Artifact for which to retrieve tags")))
+        (@subcommand account =>
+         (about: "Retrieve settings and metadata about your account.")
+         (@subcommand info =>
+          (about: "Read current account metadata and settings."))
+         (@subcommand history =>
+          (about: "Read API usage history of the account."))
+         (@subcommand monitors =>
+          (about: "Get active monitors for account."))
+         (@subcommand organization =>
+          (about: "Read current organization metadata."))
+         (@subcommand quotas =>
+          (about: "Read current account and organization quotas."))
+         (@subcommand sources =>
+          (about: "Check sources being used for queries.")
+          (@arg SOURCE: +takes_value +required "Specific source to check"))
+         (@subcommand teamstream =>
+          (about: "Read team activity."))
+         )
     ).get_matches()
 }
 
@@ -311,6 +329,48 @@ fn handle_whois_command(pt: &PassiveTotal, cmd: &ArgMatches) -> Result<json::Val
     }
 }
 
+fn handle_account_command(pt: &PassiveTotal, cmd: &ArgMatches) -> Result<json::Value> {
+    match cmd.subcommand() {
+        ("info", _) => {
+            pt.account_info().chain_err(
+                || "Failed to run `account info` command!",
+            )
+        },
+        ("history", _) => {
+            pt.account_history().chain_err(
+                || "Failed to run `account history` command!",
+            )
+        },
+        ("monitors", _) => {
+            pt.account_monitors().chain_err(
+                || "Failed to run `account monitors` command!",
+            )
+        },
+        ("organization", _) => {
+            pt.account_organization().chain_err(
+                || "Failed to run `account organization` command!",
+            )
+        },
+        ("quotas", _) => {
+            pt.account_quotas().chain_err(
+                || "Failed to run `account quotas` command!",
+            )
+        },
+        ("sources", Some(cmd)) => {
+            let source = cmd.value_of("SOURCE").unwrap();
+            pt.account_source(source).chain_err(
+                || "Failed to run `account sources` command!",
+            )
+        },
+        ("teamstream", _) => {
+            pt.account_teamstream().chain_err(
+                || "Failed to run `account teamstream` command!",
+            )
+        },
+        _ => Err("No valid subcommand provided to `account` command!".into()),
+    }
+}
+
 fn run(pt: &PassiveTotal, args: &ArgMatches) -> Result<()> {
     // Calling unwrap on all these checks for 'QUERY' are ok because 'QUERY' is
     // always required in each case so a value MUST exist.
@@ -331,6 +391,7 @@ fn run(pt: &PassiveTotal, args: &ArgMatches) -> Result<()> {
         ("ssl", Some(cmd)) => handle_ssl_command(pt, cmd)?,
         ("enrichment", Some(cmd)) => handle_enrichment_command(pt, cmd)?,
         ("actions", Some(cmd)) => handle_actions_command(pt, cmd)?,
+        ("account", Some(cmd)) => handle_account_command(pt, cmd)?,
         _ => return Err("No valid command provided!".into()),
     };
 

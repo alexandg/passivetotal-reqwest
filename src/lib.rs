@@ -507,6 +507,41 @@ impl PassiveTotal {
         )
     }
 
+    /// Read current account metadata and settings.
+    pub fn account_info(&self) -> Result<Value> {
+        self.send_request_json_response("/account", json!({}))
+    }
+
+    /// Read API usage history of current account.
+    pub fn account_history(&self) -> Result<Value> {
+        self.send_request_json_response("/account/history", json!({}))
+    }
+
+    /// Get active monitors.
+    pub fn account_monitors(&self) -> Result<Value> {
+        self.send_request_json_response("/account/monitors", json!({}))
+    }
+
+    /// Get current organization metadata.
+    pub fn account_organization(&self) -> Result<Value> {
+        self.send_request_json_response("/account/organization", json!({}))
+    }
+
+    /// Read current account and organization quotas.
+    pub fn account_quotas(&self) -> Result<Value> {
+        self.send_request_json_response("/account/quota", json!({}))
+    }
+
+    /// Check specific source being used for queries.
+    pub fn account_source(&self, source: &str) -> Result<Value> {
+        self.send_request_json_response("/account/sources", json!({"source": source}))
+    }
+
+    /// Read team activity.
+    pub fn account_teamstream(&self) -> Result<Value> {
+        self.send_request_json_response("/account/organization/teamstream", json!({}))
+    }
+
     fn send_request_json_response<T>(&self, url: &str, params: T) -> Result<Value>
     where
         T: serde::ser::Serialize,
