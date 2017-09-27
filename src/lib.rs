@@ -263,7 +263,7 @@ impl PassiveTotal {
         self.send_request_json_response(
             "/dns/passive/unique",
             json!({
-                "query": query
+                "query": valid_domain(query)?
             }),
         )
     }
@@ -273,7 +273,7 @@ impl PassiveTotal {
         self.send_request_json_response(
             "/whois",
             json!({
-                "query": query
+                "query": valid_domain(query)?
             }),
         )
     }
@@ -345,7 +345,7 @@ impl PassiveTotal {
         self.send_request_json_response(
             "/enrichment",
             json!({
-                "query": query
+                "query": valid_domain(query)?
             }),
         )
     }
@@ -355,7 +355,7 @@ impl PassiveTotal {
         self.send_request_json_response(
             "/enrichment/osint",
             json!({
-                "query": query
+                "query": valid_domain(query)?
             }),
         )
     }
@@ -365,7 +365,7 @@ impl PassiveTotal {
         self.send_request_json_response(
             "/enrichment/malware",
             json!({
-                "query": query
+                "query": valid_domain(query)?
             }),
         )
     }
@@ -375,7 +375,7 @@ impl PassiveTotal {
         self.send_request_json_response(
             "/enrichment/subdomains",
             json!({
-                "query": query
+                "query": valid_domain(query)?
             }),
         )
     }
@@ -385,7 +385,7 @@ impl PassiveTotal {
         self.send_request_json_response(
             "/actions/classification",
             json!({
-                "query": query
+                "query": valid_domain(query)?
             }),
         )
     }
@@ -395,7 +395,7 @@ impl PassiveTotal {
         self.send_request_json_response(
             "/actions/ever-compromised",
             json!({
-                "query": query
+                "query": valid_domain(query)?
             }),
         )
     }
@@ -405,7 +405,7 @@ impl PassiveTotal {
         self.send_request_json_response(
             "/actions/dynamic-dns",
             json!({
-                "query": query
+                "query": valid_domain(query)?
             }),
         )
     }
@@ -415,7 +415,7 @@ impl PassiveTotal {
         self.send_request_json_response(
             "/actions/monitor",
             json!({
-                "query": query
+                "query": valid_domain(query)?
             }),
         )
     }
@@ -425,7 +425,7 @@ impl PassiveTotal {
         self.send_request_json_response(
             "/actions/sinkhole",
             json!({
-                "query": query
+                "query": valid_domain(query)?
             }),
         )
     }
@@ -435,7 +435,7 @@ impl PassiveTotal {
         self.send_request_json_response(
             "/actions/tags",
             json!({
-                "query": query
+                "query": valid_domain(query)?
             }),
         )
     }
@@ -498,6 +498,7 @@ impl PassiveTotal {
     }
 }
 
+// Try to parse a given query into a valid domain or ipv4 address
 fn valid_domain(query: &str) -> Result<String> {
     if let Ok(url) = Url::parse(query) {
         if let Some(host) = url.host() {
@@ -512,6 +513,8 @@ fn valid_domain(query: &str) -> Result<String> {
     Err(PassiveTotalError::InvalidDomain)
 }
 
+// Check to see if a given `Host` is either a `Domain` or an `Ipv4`
+// and return it as a `String` or return an `Error`
 fn valid_host(host: Host) -> Result<String> {
     match host {
         Host::Domain(s) => Ok(s.to_owned()),
