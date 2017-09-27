@@ -48,11 +48,13 @@ extern crate reqwest;
 extern crate serde;
 #[macro_use]
 extern crate serde_json;
+extern crate url;
 
 use std::str::FromStr;
 use std::time::Duration;
 
 use serde_json::Value;
+use url::{Host, Url};
 
 mod error;
 
@@ -251,7 +253,7 @@ impl PassiveTotal {
         self.send_request_json_response(
             "/dns/passive",
             json!({
-                "query": query
+                "query": valid_domain(query)?
             }),
         )
     }
@@ -493,5 +495,27 @@ impl PassiveTotal {
         } else {
             resp.json().map_err(From::from)
         }
+    }
+}
+
+fn valid_domain(query: &str) -> Result<String> {
+    if let Ok(url) = Url::parse(query) {
+        if let Some(host) = url.host() {
+            return valid_host(host.to_owned());
+        }
+    }
+
+    if let Ok(host) = Host::parse(query) {
+        return valid_host(host.to_owned());
+    }
+
+    Err(PassiveTotalError::InvalidDomain)
+}
+
+fn valid_host(host: Host) -> Result<String> {
+    match host {
+        Host::Domain(s) => Ok(s.to_owned()),
+        Host::Ipv4(ip) => Ok(format!("{}", ip)),
+        Host::Ipv6(_) => Err(PassiveTotalError::InvalidDomain),
     }
 }

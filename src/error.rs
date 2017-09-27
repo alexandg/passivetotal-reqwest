@@ -13,6 +13,8 @@ pub type Result<T> = result::Result<T, PassiveTotalError>;
 /// Represents various errors that can occur during API requests.
 #[derive(Debug)]
 pub enum PassiveTotalError {
+    /// Returned when no valid domain can be parsed from a given query
+    InvalidDomain,
     /// An error returned by `reqwest`.
     ReqwestError(reqwest::Error),
     /// Requests to the Passivetotal API that return a status code 400-499
@@ -33,6 +35,7 @@ pub enum PassiveTotalError {
 impl fmt::Display for PassiveTotalError {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
         match *self {
+            PassiveTotalError::InvalidDomain => write!(f, "Invalid domain given."),
             PassiveTotalError::ReqwestError(ref err) => write!(f, "Reqwest error: {}", err),
             PassiveTotalError::ClientError(ref code) => write!(f, "Client error: {}", code),
             PassiveTotalError::ServerError(ref code) => write!(f, "Server error: {}", code),
@@ -49,6 +52,7 @@ impl fmt::Display for PassiveTotalError {
 impl error::Error for PassiveTotalError {
     fn description(&self) -> &str {
         match *self {
+            PassiveTotalError::InvalidDomain => "Invalid domain given.",
             PassiveTotalError::ReqwestError(ref err) => error::Error::description(err),
             PassiveTotalError::ClientError(_) => {
                 "Client error. This is usually caused by a malformed request."
