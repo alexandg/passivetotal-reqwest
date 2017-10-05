@@ -480,12 +480,12 @@ impl PassiveTotal {
         T: serde::ser::Serialize,
     {
         let url = format!("{}{}", BASE_URL, url);
-        let mut resp = reqwest::Client::builder()?
+        let mut resp = reqwest::Client::builder()
             .timeout(self.timeout)
             .build()?
-            .get(&url)?
+            .get(&url)
             .basic_auth(self.username.as_str(), Some(self.apikey.as_str()))
-            .json(&params)?
+            .json(&params)
             .send()?;
 
         if resp.status().is_client_error() {
