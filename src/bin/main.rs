@@ -225,35 +225,29 @@ fn handle_ssl_command(pt: &PassiveTotal, cmd: &ArgMatches) -> Result<json::Value
 }
 
 fn handle_enrichment_command(pt: &PassiveTotal, cmd: &ArgMatches) -> Result<json::Value> {
-    match cmd.subcommand() {
+    let result = match cmd.subcommand() {
         ("data", Some(c)) => {
             let query = c.value_of("QUERY").unwrap();
-            pt.enrichment_data(query).chain_err(
-                || "Failed running `enrichment data` command!",
-            )
+            pt.enrichment().data(query).send()?
         },
         ("malware", Some(c)) => {
             let query = c.value_of("QUERY").unwrap();
-            pt.malware(query).chain_err(
-                || "Failed running `enrichment malware` command!",
-            )
+            pt.enrichment().malware(query).send()?
         },
         ("osint", Some(c)) => {
             let query = c.value_of("QUERY").unwrap();
-            pt.osint(query).chain_err(
-                || "Failed running `enrichment osint` command!",
-            )
+            pt.enrichment().osint(query).send()?
         },
         ("subdomains", Some(c)) => {
             let query = c.value_of("QUERY").unwrap();
-            pt.subdomains(query).chain_err(
-                || "Failed running `enrichment subdomains` command!",
-            )
+            pt.enrichment().subdomains(query).send()?
         },
-        _ => Err(
+        _ => return Err(
             "No valid subcommand provided to `enrichment` command!".into(),
         ),
-    }
+    };
+
+    Ok(result)
 }
 
 fn handle_actions_command(pt: &PassiveTotal, cmd: &ArgMatches) -> Result<json::Value> {

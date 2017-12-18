@@ -58,6 +58,7 @@ use serde_json::Value;
 use url::{Host, Url};
 
 mod account;
+mod enrichment;
 mod error;
 
 pub use error::{PassiveTotalError, Result};
@@ -338,46 +339,6 @@ impl PassiveTotal {
             json!({
                 "query": query,
                 "field": field.as_str(),
-            }),
-        )
-    }
-
-    /// Retrieve all available enrichment data for a domain or IP address.
-    pub fn enrichment_data(&self, query: &str) -> Result<Value> {
-        self.send_request_json_response(
-            "/enrichment",
-            json!({
-                "query": valid_domain(query)?
-            }),
-        )
-    }
-
-    /// Retrieve OSINT data for a given domain or IP address.
-    pub fn osint(&self, query: &str) -> Result<Value> {
-        self.send_request_json_response(
-            "/enrichment/osint",
-            json!({
-                "query": valid_domain(query)?
-            }),
-        )
-    }
-
-    /// Retrieve malware hosting information on a given domain or IP address.
-    pub fn malware(&self, query: &str) -> Result<Value> {
-        self.send_request_json_response(
-            "/enrichment/malware",
-            json!({
-                "query": valid_domain(query)?
-            }),
-        )
-    }
-
-    /// Retrieve subdomains for a given domain.
-    pub fn subdomains(&self, query: &str) -> Result<Value> {
-        self.send_request_json_response(
-            "/enrichment/subdomains",
-            json!({
-                "query": valid_domain(query)?
             }),
         )
     }
