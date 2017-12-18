@@ -42,7 +42,7 @@ use std::path::{Path, PathBuf};
 use clap::ArgMatches;
 use passivetotal::PassiveTotal;
 
-const ABOUT: &'static str = "Simple CLI for passivetotal-reqwest library.";
+const ABOUT: &str = "Simple CLI for passivetotal-reqwest library.";
 
 mod errors {
     use std::io;
@@ -330,45 +330,21 @@ fn handle_whois_command(pt: &PassiveTotal, cmd: &ArgMatches) -> Result<json::Val
 }
 
 fn handle_account_command(pt: &PassiveTotal, cmd: &ArgMatches) -> Result<json::Value> {
-    match cmd.subcommand() {
-        ("info", _) => {
-            pt.account_info().chain_err(
-                || "Failed to run `account info` command!",
-            )
-        },
-        ("history", _) => {
-            pt.account_history().chain_err(
-                || "Failed to run `account history` command!",
-            )
-        },
-        ("monitors", _) => {
-            pt.account_monitors().chain_err(
-                || "Failed to run `account monitors` command!",
-            )
-        },
-        ("organization", _) => {
-            pt.account_organization().chain_err(
-                || "Failed to run `account organization` command!",
-            )
-        },
-        ("quotas", _) => {
-            pt.account_quotas().chain_err(
-                || "Failed to run `account quotas` command!",
-            )
-        },
+    let result = match cmd.subcommand() {
+        ("info", _) => pt.account().info().send()?,
+        ("history", _) => pt.account().history().send()?,
+        ("monitors", _) => pt.account().monitors().send()?,
+        ("organization", _) => pt.account().organization().send()?,
+        ("quotas", _) => pt.account().quota().send()?,
         ("sources", Some(cmd)) => {
             let source = cmd.value_of("SOURCE").unwrap();
-            pt.account_source(source).chain_err(
-                || "Failed to run `account sources` command!",
-            )
+            pt.account().sources().source(source).send()?
         },
-        ("teamstream", _) => {
-            pt.account_teamstream().chain_err(
-                || "Failed to run `account teamstream` command!",
-            )
-        },
-        _ => Err("No valid subcommand provided to `account` command!".into()),
-    }
+        ("teamstream", _) => pt.account().organization().teamstream().send()?,
+        _ => return Err("No valid subcommand provided to `account` command!".into()),
+    };
+
+    Ok(result)
 }
 
 fn run(pt: &PassiveTotal, args: &ArgMatches) -> Result<()> {

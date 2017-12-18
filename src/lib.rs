@@ -38,12 +38,13 @@
 //!
 //! # License
 //!
-//! `passivetotal-reqwest` is licensed under the MIT License. See LICENSE-MIT.
+//! `passivetotal-reqwest` is licensed under the MIT License.
 //!
 //! [1]: https://crates.io/crates/reqwest
 //! [2]: https://github.com/passivetotal/rust_api
 //! [3]: https://www.passivetotal.org
 //! [4]: https://api.passivetotal.org/api/docs/
+extern crate chrono;
 extern crate reqwest;
 extern crate serde;
 #[macro_use]
@@ -56,11 +57,12 @@ use std::time::Duration;
 use serde_json::Value;
 use url::{Host, Url};
 
+mod account;
 mod error;
 
 pub use error::{PassiveTotalError, Result};
 
-const BASE_URL: &'static str = "https://api.passivetotal.org/v2";
+const BASE_URL: &str = "https://api.passivetotal.org/v2";
 
 /// Represents the available ssl search fields for ssl field searches
 #[derive(Debug)]
@@ -438,41 +440,6 @@ impl PassiveTotal {
                 "query": valid_domain(query)?
             }),
         )
-    }
-
-    /// Read current account metadata and settings.
-    pub fn account_info(&self) -> Result<Value> {
-        self.send_request_json_response("/account", json!({}))
-    }
-
-    /// Read API usage history of current account.
-    pub fn account_history(&self) -> Result<Value> {
-        self.send_request_json_response("/account/history", json!({}))
-    }
-
-    /// Get active monitors.
-    pub fn account_monitors(&self) -> Result<Value> {
-        self.send_request_json_response("/account/monitors", json!({}))
-    }
-
-    /// Get current organization metadata.
-    pub fn account_organization(&self) -> Result<Value> {
-        self.send_request_json_response("/account/organization", json!({}))
-    }
-
-    /// Read current account and organization quotas.
-    pub fn account_quotas(&self) -> Result<Value> {
-        self.send_request_json_response("/account/quota", json!({}))
-    }
-
-    /// Check specific source being used for queries.
-    pub fn account_source(&self, source: &str) -> Result<Value> {
-        self.send_request_json_response("/account/sources", json!({"source": source}))
-    }
-
-    /// Read team activity.
-    pub fn account_teamstream(&self) -> Result<Value> {
-        self.send_request_json_response("/account/organization/teamstream", json!({}))
     }
 
     fn send_request_json_response<T>(&self, url: &str, params: T) -> Result<Value>
