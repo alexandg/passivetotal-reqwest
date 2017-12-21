@@ -251,45 +251,35 @@ fn handle_enrichment_command(pt: &PassiveTotal, cmd: &ArgMatches) -> Result<json
 }
 
 fn handle_actions_command(pt: &PassiveTotal, cmd: &ArgMatches) -> Result<json::Value> {
-    match cmd.subcommand() {
+    let result = match cmd.subcommand() {
         ("classification", Some(c)) => {
             let query = c.value_of("QUERY").unwrap();
-            pt.classification(query).chain_err(
-                || "Failed running `actions classification` command!",
-            )
+            pt.actions().classification(query).send()?
         },
         ("compromised", Some(c)) => {
             let query = c.value_of("QUERY").unwrap();
-            pt.compromised(query).chain_err(
-                || "Failed running `actions compromised` command!",
-            )
+            pt.actions().compromised(query).send()?
         },
         ("ddns", Some(c)) => {
             let query = c.value_of("QUERY").unwrap();
-            pt.ddns(query).chain_err(
-                || "Failed running `actions ddns` command!",
-            )
+            pt.actions().dynamic_dns(query).send()?
         },
         ("monitor", Some(c)) => {
             let query = c.value_of("QUERY").unwrap();
-            pt.monitor(query).chain_err(
-                || "Failed running `actions monitor` command!",
-            )
+            pt.actions().monitor(query).send()?
         },
         ("sinkhole", Some(c)) => {
             let query = c.value_of("QUERY").unwrap();
-            pt.sinkhole(query).chain_err(
-                || "Failed running `actions sinkhole` command!",
-            )
+            pt.actions().sinkhole(query).send()?
         },
         ("tags", Some(c)) => {
             let query = c.value_of("QUERY").unwrap();
-            pt.tags(query).chain_err(
-                || "Failed running `actions tags` command!",
-            )
+            pt.actions().tags(query).send()?
         },
-        _ => Err("No valid subcommand provided to `actions` command!".into()),
-    }
+        _ => return Err("No valid subcommand provided to `actions` command!".into()),
+    };
+
+    Ok(result)
 }
 
 fn handle_whois_command(pt: &PassiveTotal, cmd: &ArgMatches) -> Result<json::Value> {

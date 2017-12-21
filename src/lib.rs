@@ -58,6 +58,7 @@ use serde_json::Value;
 use url::{Host, Url};
 
 mod account;
+mod actions;
 mod enrichment;
 mod error;
 
@@ -339,66 +340,6 @@ impl PassiveTotal {
             json!({
                 "query": query,
                 "field": field.as_str(),
-            }),
-        )
-    }
-
-    /// Retrieve classification status for a given domain.
-    pub fn classification(&self, query: &str) -> Result<Value> {
-        self.send_request_json_response(
-            "/actions/classification",
-            json!({
-                "query": valid_domain(query)?
-            }),
-        )
-    }
-
-    /// Retrieve if a given domain has ever been compromised.
-    pub fn compromised(&self, query: &str) -> Result<Value> {
-        self.send_request_json_response(
-            "/actions/ever-compromised",
-            json!({
-                "query": valid_domain(query)?
-            }),
-        )
-    }
-
-    /// Retrieve if a given domain's DNS records are updated via dynamic DNS.
-    pub fn ddns(&self, query: &str) -> Result<Value> {
-        self.send_request_json_response(
-            "/actions/dynamic-dns",
-            json!({
-                "query": valid_domain(query)?
-            }),
-        )
-    }
-
-    /// Retrieve if a given domain is being monitored.
-    pub fn monitor(&self, query: &str) -> Result<Value> {
-        self.send_request_json_response(
-            "/actions/monitor",
-            json!({
-                "query": valid_domain(query)?
-            }),
-        )
-    }
-
-    /// Retrieve if a given domain is a sinkhole.
-    pub fn sinkhole(&self, query: &str) -> Result<Value> {
-        self.send_request_json_response(
-            "/actions/sinkhole",
-            json!({
-                "query": valid_domain(query)?
-            }),
-        )
-    }
-
-    /// Retrieve tags for a given query.
-    pub fn tags(&self, query: &str) -> Result<Value> {
-        self.send_request_json_response(
-            "/actions/tags",
-            json!({
-                "query": valid_domain(query)?
             }),
         )
     }
