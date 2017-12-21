@@ -17,6 +17,21 @@ macro_rules! impl_send_query {
                 self.pt.send_request_json_response(
                     self.url,
                     json!({
+                        "query": self.query
+                    }),
+                )
+            }
+        }
+    };
+}
+
+macro_rules! impl_send_query_valid_domain {
+    ($id:ident) => {
+        impl<'a> $id<'a> {
+            pub fn send(&self) -> Result<Value> {
+                self.pt.send_request_json_response(
+                    self.url,
+                    json!({
                         "query": ::utils::valid_domain(&self.query)?
                     }),
                 )

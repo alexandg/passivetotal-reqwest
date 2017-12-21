@@ -82,7 +82,7 @@ pub struct WhoisInfo<'a> {
     query: &'a str,
 }
 
-impl_send_query!(WhoisInfo);
+impl_send_query_valid_domain!(WhoisInfo);
 
 pub struct WhoisSearch<'a> {
     pt: &'a PassiveTotal,

@@ -95,12 +95,12 @@ impl<'a> ActionsRequest<'a> {
     }
 }
 
-impl_send_query!(ActionsClassification);
-impl_send_query!(ActionsCompromised);
-impl_send_query!(ActionsDynamicDns);
-impl_send_query!(ActionsMonitor);
-impl_send_query!(ActionsSinkhole);
-impl_send_query!(ActionsTags);
+impl_send_query_valid_domain!(ActionsClassification);
+impl_send_query_valid_domain!(ActionsCompromised);
+impl_send_query_valid_domain!(ActionsDynamicDns);
+impl_send_query_valid_domain!(ActionsMonitor);
+impl_send_query_valid_domain!(ActionsSinkhole);
+impl_send_query_valid_domain!(ActionsTags);
 
 impl PassiveTotal {
     pub fn actions(&self) -> ActionsRequest {

@@ -69,10 +69,10 @@ impl<'a> EnrichmentRequest<'a> {
     }
 }
 
-impl_send_query!(EnrichmentData);
-impl_send_query!(EnrichmentOsint);
-impl_send_query!(EnrichmentMalware);
-impl_send_query!(EnrichmentSubdomains);
+impl_send_query_valid_domain!(EnrichmentData);
+impl_send_query_valid_domain!(EnrichmentOsint);
+impl_send_query_valid_domain!(EnrichmentMalware);
+impl_send_query_valid_domain!(EnrichmentSubdomains);
 
 impl PassiveTotal {
     pub fn enrichment(&self) -> EnrichmentRequest {
