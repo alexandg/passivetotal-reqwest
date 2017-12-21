@@ -188,40 +188,32 @@ fn config(args: &ArgMatches) -> Result<Config> {
 }
 
 fn handle_ssl_command(pt: &PassiveTotal, cmd: &ArgMatches) -> Result<json::Value> {
-    match cmd.subcommand() {
+    let result = match cmd.subcommand() {
         ("certificate", Some(c)) => {
             let query = c.value_of("QUERY").unwrap();
-            pt.sslcert(query).chain_err(
-                || "Failed running 'ssl certificate' command!",
-            )
+            pt.ssl().certificate(query).send()?
         },
         ("history", Some(c)) => {
             let query = c.value_of("QUERY").unwrap();
-            pt.sslcert_history(query).chain_err(
-                || "Failed running 'ssl history' command!",
-            )
+            pt.ssl().history(query).send()?
         },
         ("search", Some(c)) => {
             let query = c.value_of("QUERY").unwrap();
             if let Some(f) = c.value_of("FIELD") {
                 match f.parse() {
                     Ok(field) => {
-                        pt.sslcert_search_by_field(query, field).chain_err(
-                            || "Failed to run `ssl search` command!",
-                        )
+                        pt.ssl().search(query).field(field).send()?
                     },
-                    Err(err) => {
-                        Err(err).chain_err(|| "Failed to create valid field from given argument.")
-                    },
+                    Err(err) => return Err(err.into()),
                 }
             } else {
-                pt.sslcert_search(query).chain_err(
-                    || "Failed to run `ssl search` command!",
-                )
+                pt.ssl().search(query).send()?
             }
         },
-        _ => Err("No valid subcommand provided to `ssl` command!".into()),
-    }
+        _ => return Err("No valid subcommand provided to `ssl` command!".into()),
+    };
+
+    Ok(result)
 }
 
 fn handle_enrichment_command(pt: &PassiveTotal, cmd: &ArgMatches) -> Result<json::Value> {

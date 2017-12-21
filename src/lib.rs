@@ -62,116 +62,12 @@ mod account;
 mod actions;
 mod enrichment;
 mod error;
+mod ssl;
 mod utils;
 
 pub use error::{PassiveTotalError, Result};
 
 const BASE_URL: &str = "https://api.passivetotal.org/v2";
-
-/// Represents the available ssl search fields for ssl field searches
-#[derive(Debug)]
-pub enum SslField {
-    IssuerSurname,
-    SubjectOrganizationName,
-    IssuerCountry,
-    IssuerOrganizationUnitName,
-    Fingerprint,
-    SubjectOrganizationUnitName,
-    SerialNumber,
-    SubjectEmailAddress,
-    SubjectCountry,
-    IssuerGivenName,
-    SubjectCommonName,
-    IssuerCommonName,
-    IssuerStateOrProvinceName,
-    IssuerProvince,
-    SubjectStateOrProvinceName,
-    Sha1,
-    SubjectStreetAddress,
-    SubjectSerialNumber,
-    IssuerOrganizationName,
-    SubjectSurname,
-    SubjectLocalityName,
-    IssuerStreetAddress,
-    IssuerLocalityName,
-    SubjectGivenName,
-    SubjectProvince,
-    IssuerSerialNumber,
-    IssuerEmailAddress,
-}
-
-impl SslField {
-    /// Returns a `&str` representation of an `SslField` enum
-    pub fn as_str(&self) -> &str {
-        match *self {
-            SslField::IssuerSurname => "issuerSurname",
-            SslField::SubjectOrganizationName => "subjectOrganizationName",
-            SslField::IssuerCountry => "issuerCountry",
-            SslField::IssuerOrganizationUnitName => "issuerOrganizationUnitName",
-            SslField::Fingerprint => "fingerprint",
-            SslField::SubjectOrganizationUnitName => "subjectOrganizationUnitName",
-            SslField::SerialNumber => "serialNumber",
-            SslField::SubjectEmailAddress => "subjectEmailAddress",
-            SslField::SubjectCountry => "subjectCountry",
-            SslField::IssuerGivenName => "issuerGivenName",
-            SslField::SubjectCommonName => "subjectCommonName",
-            SslField::IssuerCommonName => "issuerCommonName",
-            SslField::IssuerStateOrProvinceName => "issuerStateOrProvinceName",
-            SslField::IssuerProvince => "issuerProvince",
-            SslField::SubjectStateOrProvinceName => "subjectStateOrProvinceName",
-            SslField::Sha1 => "sha1",
-            SslField::SubjectStreetAddress => "subjectStreetAddress",
-            SslField::SubjectSerialNumber => "subjectSerialNumber",
-            SslField::IssuerOrganizationName => "issuerOrganizationName",
-            SslField::SubjectSurname => "subjectSurname",
-            SslField::SubjectLocalityName => "subjectLocalityName",
-            SslField::IssuerStreetAddress => "issuerStreetAddress",
-            SslField::IssuerLocalityName => "issuerLocalityName",
-            SslField::SubjectGivenName => "subjectGivenName",
-            SslField::SubjectProvince => "subjectProvince",
-            SslField::IssuerSerialNumber => "issuerSerialNumber",
-            SslField::IssuerEmailAddress => "issuerEmailAddress",
-        }
-    }
-}
-
-impl FromStr for SslField {
-    type Err = PassiveTotalError;
-
-    fn from_str(s: &str) -> std::result::Result<Self, Self::Err> {
-        let lower = s.to_lowercase();
-        match lower.as_str() {
-            "issuersurname" => Ok(SslField::IssuerSurname),
-            "subjectorganizationname" => Ok(SslField::SubjectOrganizationName),
-            "issuercountry" => Ok(SslField::IssuerCountry),
-            "issuerorganizationunitname" => Ok(SslField::IssuerOrganizationUnitName),
-            "fingerprint" => Ok(SslField::Fingerprint),
-            "subjectorganizationunitname" => Ok(SslField::SubjectOrganizationUnitName),
-            "serialnumber" => Ok(SslField::SerialNumber),
-            "subjectemailaddress" => Ok(SslField::SubjectEmailAddress),
-            "subjectcountry" => Ok(SslField::SubjectCountry),
-            "issuergivenname" => Ok(SslField::IssuerGivenName),
-            "subjectcommonname" => Ok(SslField::SubjectCommonName),
-            "issuercommonname" => Ok(SslField::IssuerCommonName),
-            "issuerstateorprovincename" => Ok(SslField::IssuerStateOrProvinceName),
-            "issuerprovince" => Ok(SslField::IssuerProvince),
-            "subjectstateorprovincename" => Ok(SslField::SubjectStateOrProvinceName),
-            "sha1" => Ok(SslField::Sha1),
-            "subjectstreetaddress" => Ok(SslField::SubjectStreetAddress),
-            "subjectserialnumber" => Ok(SslField::SubjectSerialNumber),
-            "issuerorganizationname" => Ok(SslField::IssuerOrganizationName),
-            "subjectsurname" => Ok(SslField::SubjectSurname),
-            "subjectlocalityname" => Ok(SslField::SubjectLocalityName),
-            "issuerstreetaddress" => Ok(SslField::IssuerStreetAddress),
-            "issuerlocalityname" => Ok(SslField::IssuerLocalityName),
-            "subjectgivenname" => Ok(SslField::SubjectGivenName),
-            "subjectprovince" => Ok(SslField::SubjectProvince),
-            "issuerserialnumber" => Ok(SslField::IssuerSerialNumber),
-            "issueremailaddress" => Ok(SslField::IssuerEmailAddress),
-            _ => Err(PassiveTotalError::SslFieldParseError(String::from(s))),
-        }
-    }
-}
 
 /// Represents the available WHOIS search fields for WHOIS field searches
 #[derive(Debug)]
@@ -301,47 +197,6 @@ impl PassiveTotal {
             json!({
                 "query": query,
                 "field": field.as_str()
-            }),
-        )
-    }
-
-    /// Retrieve a SSL certificate by SHA1 hash.
-    pub fn sslcert(&self, query: &str) -> Result<Value> {
-        self.send_request_json_response(
-            "/ssl-certificate",
-            json!({
-                "query": query
-            }),
-        )
-    }
-
-    /// Retrieve the history of a SSL certificate but SHA1 hash or IP address.
-    pub fn sslcert_history(&self, query: &str) -> Result<Value> {
-        self.send_request_json_response(
-            "/ssl-certificate/history",
-            json!({
-                "query": query
-            }),
-        )
-    }
-
-    /// Retrieves SSL certificates for a given keyword.
-    pub fn sslcert_search(&self, query: &str) -> Result<Value> {
-        self.send_request_json_response(
-            "/ssl-certificate/search/keyword",
-            json!({
-                "query": query
-            }),
-        )
-    }
-
-    /// Retrieves SSL certificates for a given field value.
-    pub fn sslcert_search_by_field(&self, query: &str, field: SslField) -> Result<Value> {
-        self.send_request_json_response(
-            "/ssl-certificate/search",
-            json!({
-                "query": query,
-                "field": field.as_str(),
             }),
         )
     }
