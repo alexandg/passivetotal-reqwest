@@ -55,12 +55,14 @@ use std::str::FromStr;
 use std::time::Duration;
 
 use serde_json::Value;
-use url::{Host, Url};
 
+#[macro_use]
+mod macros;
 mod account;
 mod actions;
 mod enrichment;
 mod error;
+mod utils;
 
 pub use error::{PassiveTotalError, Result};
 
@@ -257,7 +259,7 @@ impl PassiveTotal {
         self.send_request_json_response(
             "/dns/passive",
             json!({
-                "query": valid_domain(query)?
+                "query": utils::valid_domain(query)?
             }),
         )
     }
@@ -267,7 +269,7 @@ impl PassiveTotal {
         self.send_request_json_response(
             "/dns/passive/unique",
             json!({
-                "query": valid_domain(query)?
+                "query": utils::valid_domain(query)?
             }),
         )
     }
@@ -277,7 +279,7 @@ impl PassiveTotal {
         self.send_request_json_response(
             "/whois",
             json!({
-                "query": valid_domain(query)?
+                "query": utils::valid_domain(query)?
             }),
         )
     }
@@ -364,30 +366,5 @@ impl PassiveTotal {
         } else {
             resp.json().map_err(From::from)
         }
-    }
-}
-
-// Try to parse a given query into a valid domain or ipv4 address
-fn valid_domain(query: &str) -> Result<String> {
-    if let Ok(url) = Url::parse(query) {
-        if let Some(host) = url.host() {
-            return valid_host(host.to_owned());
-        }
-    }
-
-    if let Ok(host) = Host::parse(query) {
-        return valid_host(host.to_owned());
-    }
-
-    Err(PassiveTotalError::InvalidDomain)
-}
-
-// Check to see if a given `Host` is either a `Domain` or an `Ipv4`
-// and return it as a `String` or return an `Error`
-fn valid_host(host: Host) -> Result<String> {
-    match host {
-        Host::Domain(s) => Ok(s.to_owned()),
-        Host::Ipv4(ip) => Ok(format!("{}", ip)),
-        Host::Ipv6(_) => Err(PassiveTotalError::InvalidDomain),
     }
 }

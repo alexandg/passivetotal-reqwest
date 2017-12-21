@@ -13,18 +13,6 @@ const URL_TEAMSTREAM: &str = "/account/organization/teamstream";
 const URL_QUOTA: &str = "/account/quota";
 const URL_SOURCES: &str = "/account/sources";
 
-// XXX: This would probably be better as a custom derive so it can handle
-// optional parameters automagically
-macro_rules! impl_send {
-    ($id:ident) => {
-        impl<'a> $id<'a> {
-            pub fn send(&self) -> Result<Value> {
-                self.pt.send_request_json_response(self.url, json!({}))
-            }
-        }
-    };
-}
-
 pub struct AccountRequest<'a> {
     pt: &'a PassiveTotal,
 }

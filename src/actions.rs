@@ -10,21 +10,6 @@ const URL_MONITOR: &str = "/actions/monitor";
 const URL_SINKHOLE: &str = "/actions/sinkhole";
 const URL_TAGS: &str = "/actions/tags";
 
-macro_rules! impl_send_query {
-    ($id:ident) => {
-        impl<'a> $id<'a> {
-            pub fn send(&self) -> Result<Value> {
-                self.pt.send_request_json_response(
-                    self.url,
-                    json!({
-                        "query": valid_domain(&self.query)?
-                    }),
-                )
-            }
-        }
-    };
-}
-
 // Check to see if a given `Host` is either a `Domain` or an `Ipv4`
 // and return it as a `String` or return an `Error`
 fn valid_host(host: Host) -> Result<String> {
