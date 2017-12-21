@@ -1,7 +1,6 @@
-use {PassiveTotal, PassiveTotalError, Result};
+use {PassiveTotal, Result};
 
 use serde_json::Value;
-use url::{Host, Url};
 
 const URL_DATA: &str = "/enrichment";
 const URL_OSINT: &str = "/enrichment/osint";

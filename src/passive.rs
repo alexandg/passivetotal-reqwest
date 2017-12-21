@@ -1,8 +1,7 @@
-use {PassiveTotal, PassiveTotalError, Result};
+use {PassiveTotal, Result};
 use utils;
 
 use serde_json::Value;
-use url::{Host, Url};
 
 const URL_PDNS: &str = "/dns/passive";
 const URL_PDNS_UNIQUE: &str = "/dns/passive/unique";

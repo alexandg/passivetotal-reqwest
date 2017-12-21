@@ -1,8 +1,3 @@
-use {PassiveTotal, PassiveTotalError, Result};
-
-use serde_json::Value;
-use url::{Host, Url};
-
 // XXX: These would probably be better as a custom derive so it can handle
 // optional parameters automagically
 macro_rules! impl_send {
