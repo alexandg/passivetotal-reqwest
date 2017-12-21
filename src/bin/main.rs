@@ -275,34 +275,28 @@ fn handle_actions_command(pt: &PassiveTotal, cmd: &ArgMatches) -> Result<json::V
 }
 
 fn handle_whois_command(pt: &PassiveTotal, cmd: &ArgMatches) -> Result<json::Value> {
-    match cmd.subcommand() {
+    let result = match cmd.subcommand() {
         ("search", Some(c)) => {
             let query = c.value_of("QUERY").unwrap();
             if let Some(f) = c.value_of("FIELD") {
                 match f.parse() {
                     Ok(field) => {
-                        pt.whois_search(query, field).chain_err(
-                            || "Failed to run `whois search` command!",
-                        )
+                        pt.whois().search(query).field(field).send()?
                     },
-                    Err(err) => {
-                        Err(err).chain_err(|| "Failed to create valid field from given argument.")
-                    },
+                    Err(err) => return Err(err.into()),
                 }
             } else {
-                pt.whois_search_keyword(query).chain_err(
-                    || "Failed to run `whois search` command!",
-                )
+                pt.whois().search(query).send()?
             }
         },
         ("data", Some(c)) => {
             let query = c.value_of("QUERY").unwrap();
-            pt.whois(query).chain_err(
-                || "Failed running `whois` command!",
-            )
+            pt.whois().information(query).send()?
         },
-        _ => Err("No valid subcommand provided to `whois` command!".into()),
-    }
+        _ => return Err("No valid subcommand provided to `whois` command!".into()),
+    };
+
+    Ok(result)
 }
 
 fn handle_account_command(pt: &PassiveTotal, cmd: &ArgMatches) -> Result<json::Value> {
@@ -330,13 +324,9 @@ fn run(pt: &PassiveTotal, args: &ArgMatches) -> Result<()> {
         ("pdns", Some(cmd)) => {
             let query = cmd.value_of("QUERY").unwrap();
             if cmd.is_present("UNIQUE") {
-                pt.unique_passive_dns(query).chain_err(
-                    || "Failed running `pdns --unique` command!",
-                )?
+                pt.passive_dns(query).unique(true).send()?
             } else {
-                pt.passive_dns(query).chain_err(
-                    || "Failed running `pdns` command!",
-                )?
+                pt.passive_dns(query).send()?
             }
         },
         ("whois", Some(cmd)) => handle_whois_command(pt, cmd)?,

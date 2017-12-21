@@ -51,7 +51,6 @@ extern crate serde;
 extern crate serde_json;
 extern crate url;
 
-use std::str::FromStr;
 use std::time::Duration;
 
 use serde_json::Value;
@@ -63,56 +62,13 @@ mod actions;
 mod enrichment;
 mod error;
 mod ssl;
+mod passive;
 mod utils;
+mod whois;
 
 pub use error::{PassiveTotalError, Result};
 
 const BASE_URL: &str = "https://api.passivetotal.org/v2";
-
-/// Represents the available WHOIS search fields for WHOIS field searches
-#[derive(Debug)]
-pub enum WhoisField {
-    Email,
-    Domain,
-    Name,
-    Organization,
-    Address,
-    Phone,
-    Nameserver,
-}
-
-impl WhoisField {
-    /// Returns a `&str` representation of an `WhoisField` enum
-    pub fn as_str(&self) -> &str {
-        match *self {
-            WhoisField::Email => "email",
-            WhoisField::Domain => "domain",
-            WhoisField::Name => "name",
-            WhoisField::Organization => "organization",
-            WhoisField::Address => "address",
-            WhoisField::Phone => "phone",
-            WhoisField::Nameserver => "nameserver",
-        }
-    }
-}
-
-impl FromStr for WhoisField {
-    type Err = PassiveTotalError;
-
-    fn from_str(s: &str) -> std::result::Result<Self, Self::Err> {
-        let lower = s.to_lowercase();
-        match lower.as_str() {
-            "email" => Ok(WhoisField::Email),
-            "domain" => Ok(WhoisField::Domain),
-            "name" => Ok(WhoisField::Name),
-            "organization" => Ok(WhoisField::Organization),
-            "address" => Ok(WhoisField::Address),
-            "phone" => Ok(WhoisField::Phone),
-            "nameserver" => Ok(WhoisField::Nameserver),
-            _ => Err(PassiveTotalError::WhoisFieldParseError(String::from(s))),
-        }
-    }
-}
 
 /// Struct used to access the Passivetotal v2 API.
 #[derive(Debug)]
@@ -148,57 +104,6 @@ impl PassiveTotal {
             apikey: apikey.into(),
             timeout: Duration::from_secs(60),
         }
-    }
-
-    /// Lookup the passive DNS information for a given domain or ip address.
-    pub fn passive_dns(&self, query: &str) -> Result<Value> {
-        self.send_request_json_response(
-            "/dns/passive",
-            json!({
-                "query": utils::valid_domain(query)?
-            }),
-        )
-    }
-
-    /// Lookup unique passive DNS information for a given domain or ip address.
-    pub fn unique_passive_dns(&self, query: &str) -> Result<Value> {
-        self.send_request_json_response(
-            "/dns/passive/unique",
-            json!({
-                "query": utils::valid_domain(query)?
-            }),
-        )
-    }
-
-    /// Retrieve WHOIS information for a given domain.
-    pub fn whois(&self, query: &str) -> Result<Value> {
-        self.send_request_json_response(
-            "/whois",
-            json!({
-                "query": utils::valid_domain(query)?
-            }),
-        )
-    }
-
-    /// Search WHOIS data for a keyword.
-    pub fn whois_search_keyword(&self, query: &str) -> Result<Value> {
-        self.send_request_json_response(
-            "/whois/search/keyword",
-            json!({
-                "query": query
-            }),
-        )
-    }
-
-    /// Searches WHOIS data by field and query.
-    pub fn whois_search(&self, query: &str, field: WhoisField) -> Result<Value> {
-        self.send_request_json_response(
-            "/whois/search",
-            json!({
-                "query": query,
-                "field": field.as_str()
-            }),
-        )
     }
 
     fn send_request_json_response<T>(&self, url: &str, params: T) -> Result<Value>
