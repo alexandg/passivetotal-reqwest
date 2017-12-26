@@ -36,7 +36,10 @@ pub struct EnrichmentSubdomains<'a> {
 }
 
 impl<'a> EnrichmentRequest<'a> {
-    pub fn data<S>(self, query: S) -> EnrichmentData<'a> where S: Into<String> {
+    pub fn data<S>(self, query: S) -> EnrichmentData<'a>
+    where
+        S: Into<String>,
+    {
         EnrichmentData {
             pt: self.pt,
             url: URL_DATA,
@@ -44,7 +47,10 @@ impl<'a> EnrichmentRequest<'a> {
         }
     }
 
-    pub fn osint<S>(self, query: S) -> EnrichmentOsint<'a> where S: Into<String> {
+    pub fn osint<S>(self, query: S) -> EnrichmentOsint<'a>
+    where
+        S: Into<String>,
+    {
         EnrichmentOsint {
             pt: self.pt,
             url: URL_OSINT,
@@ -52,7 +58,10 @@ impl<'a> EnrichmentRequest<'a> {
         }
     }
 
-    pub fn malware<S>(self, query: S) -> EnrichmentMalware<'a> where S: Into<String> {
+    pub fn malware<S>(self, query: S) -> EnrichmentMalware<'a>
+    where
+        S: Into<String>,
+    {
         EnrichmentMalware {
             pt: self.pt,
             url: URL_MALWARE,
@@ -60,7 +69,10 @@ impl<'a> EnrichmentRequest<'a> {
         }
     }
 
-    pub fn subdomains<S>(self, query: S) -> EnrichmentSubdomains<'a> where S: Into<String> {
+    pub fn subdomains<S>(self, query: S) -> EnrichmentSubdomains<'a>
+    where
+        S: Into<String>,
+    {
         EnrichmentSubdomains {
             pt: self.pt,
             url: URL_SUBDOMAINS,

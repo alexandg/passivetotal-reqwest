@@ -201,9 +201,7 @@ fn handle_ssl_command(pt: &PassiveTotal, cmd: &ArgMatches) -> Result<json::Value
             let query = c.value_of("QUERY").unwrap();
             if let Some(f) = c.value_of("FIELD") {
                 match f.parse() {
-                    Ok(field) => {
-                        pt.ssl().search(query).field(field).send()?
-                    },
+                    Ok(field) => pt.ssl().search(query).field(field).send()?,
                     Err(err) => return Err(err.into()),
                 }
             } else {
@@ -234,9 +232,7 @@ fn handle_enrichment_command(pt: &PassiveTotal, cmd: &ArgMatches) -> Result<json
             let query = c.value_of("QUERY").unwrap();
             pt.enrichment().subdomains(query).send()?
         },
-        _ => return Err(
-            "No valid subcommand provided to `enrichment` command!".into(),
-        ),
+        _ => return Err("No valid subcommand provided to `enrichment` command!".into()),
     };
 
     Ok(result)
@@ -280,9 +276,7 @@ fn handle_whois_command(pt: &PassiveTotal, cmd: &ArgMatches) -> Result<json::Val
             let query = c.value_of("QUERY").unwrap();
             if let Some(f) = c.value_of("FIELD") {
                 match f.parse() {
-                    Ok(field) => {
-                        pt.whois().search(query).field(field).send()?
-                    },
+                    Ok(field) => pt.whois().search(query).field(field).send()?,
                     Err(err) => return Err(err.into()),
                 }
             } else {

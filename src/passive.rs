@@ -30,10 +30,8 @@ impl<'a> PassiveDnsRequest<'a> {
             URL_PDNS
         };
 
-        self.pt.send_request_json_response(
-            url,
-            json!({ "query": utils::valid_domain(self.query)? })
-        )
+        self.pt
+            .send_request_json_response(url, json!({ "query": utils::valid_domain(self.query)? }))
     }
 
     pub fn unique(&'a mut self, unique: bool) -> &'a mut PassiveDnsRequest {

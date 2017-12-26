@@ -104,8 +104,6 @@ impl_send_query_valid_domain!(ActionsTags);
 
 impl PassiveTotal {
     pub fn actions(&self) -> ActionsRequest {
-        ActionsRequest {
-            pt: self,
-        }
+        ActionsRequest { pt: self }
     }
 }

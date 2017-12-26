@@ -114,8 +114,6 @@ impl<'a> WhoisSearch<'a> {
 
 impl PassiveTotal {
     pub fn whois(&self) -> WhoisRequest {
-        WhoisRequest {
-            pt: self
-        }
+        WhoisRequest { pt: self }
     }
 }

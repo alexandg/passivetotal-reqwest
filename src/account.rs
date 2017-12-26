@@ -182,9 +182,7 @@ impl<'a> AccountSources<'a> {
 
     pub fn send(&self) -> Result<Value> {
         let params = if let Some(ref src) = self.source {
-            json!({
-                "source": src
-            })
+            json!({ "source": src })
         } else {
             json!({})
         };

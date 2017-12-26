@@ -190,8 +190,6 @@ impl_send_query!(SslHistory);
 
 impl PassiveTotal {
     pub fn ssl(&self) -> SslRequest {
-        SslRequest {
-            pt: self,
-        }
+        SslRequest { pt: self }
     }
 }
