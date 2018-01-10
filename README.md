@@ -63,7 +63,7 @@ extern crate passivetotal_reqwest;
 use passivetotal_reqwest::PassiveTotal;
 
 let pt = PassiveTotal::new("USERNAME", "APIKEY", Duration::from_secs(30));
-let resp = pt.passive_dns("www.passivetotal.org").unwrap();
+let resp = pt.passive_dns("www.passivetotal.org").send().unwrap();
 println!("{}", resp);
 ```
 
