@@ -1,6 +1,6 @@
-use {PassiveTotal, Result};
-
 use serde_json::Value;
+
+use {PassiveTotal, Result};
 
 const URL_CLASSIFICATION: &str = "/actions/classification";
 const URL_COMPROMISED: &str = "/actions/ever-compromised";
@@ -13,44 +13,36 @@ pub struct ActionsRequest<'a> {
     pt: &'a PassiveTotal,
 }
 
-pub struct ActionsClassification<'a> {
-    pt: &'a PassiveTotal,
-    url: &'a str,
+request_struct!(ActionsClassification {
     query: &'a str,
-}
+});
 
-pub struct ActionsCompromised<'a> {
-    pt: &'a PassiveTotal,
-    url: &'a str,
+request_struct!(ActionsCompromised {
     query: &'a str,
-}
-pub struct ActionsDynamicDns<'a> {
-    pt: &'a PassiveTotal,
-    url: &'a str,
+});
+
+request_struct!(ActionsDynamicDns {
     query: &'a str,
-}
-pub struct ActionsMonitor<'a> {
-    pt: &'a PassiveTotal,
-    url: &'a str,
+});
+
+request_struct!(ActionsMonitor {
     query: &'a str,
-}
-pub struct ActionsSinkhole<'a> {
-    pt: &'a PassiveTotal,
-    url: &'a str,
+});
+
+request_struct!(ActionsSinkhole {
     query: &'a str,
-}
-pub struct ActionsTags<'a> {
-    pt: &'a PassiveTotal,
-    url: &'a str,
-    query: &'a str,
-}
+});
+
+request_struct!(ActionsTags {
+    query: &'a str
+});
 
 impl<'a> ActionsRequest<'a> {
     pub fn classification(self, query: &'a str) -> ActionsClassification<'a> {
         ActionsClassification {
             pt: self.pt,
             url: URL_CLASSIFICATION,
-            query: query,
+            query,
         }
     }
 
@@ -58,7 +50,7 @@ impl<'a> ActionsRequest<'a> {
         ActionsCompromised {
             pt: self.pt,
             url: URL_COMPROMISED,
-            query: query,
+            query,
         }
     }
 
@@ -66,7 +58,7 @@ impl<'a> ActionsRequest<'a> {
         ActionsDynamicDns {
             pt: self.pt,
             url: URL_DDNS,
-            query: query,
+            query,
         }
     }
 
@@ -74,7 +66,7 @@ impl<'a> ActionsRequest<'a> {
         ActionsMonitor {
             pt: self.pt,
             url: URL_MONITOR,
-            query: query,
+            query,
         }
     }
 
@@ -82,7 +74,7 @@ impl<'a> ActionsRequest<'a> {
         ActionsSinkhole {
             pt: self.pt,
             url: URL_SINKHOLE,
-            query: query,
+            query,
         }
     }
 
@@ -90,17 +82,17 @@ impl<'a> ActionsRequest<'a> {
         ActionsTags {
             pt: self.pt,
             url: URL_TAGS,
-            query: query,
+            query,
         }
     }
 }
 
-impl_send_query_valid_domain!(ActionsClassification);
-impl_send_query_valid_domain!(ActionsCompromised);
-impl_send_query_valid_domain!(ActionsDynamicDns);
-impl_send_query_valid_domain!(ActionsMonitor);
-impl_send_query_valid_domain!(ActionsSinkhole);
-impl_send_query_valid_domain!(ActionsTags);
+impl_send!(ActionsClassification);
+impl_send!(ActionsCompromised);
+impl_send!(ActionsDynamicDns);
+impl_send!(ActionsMonitor);
+impl_send!(ActionsSinkhole);
+impl_send!(ActionsTags);
 
 impl PassiveTotal {
     pub fn actions(&self) -> ActionsRequest {

@@ -1,6 +1,6 @@
 [package]
 name = "passivetotal-reqwest"
-version = "0.8.0"
+version = "0.9.0"
 authors = ["Geoffrey Alexander <geoff.i.alexander@gmail.com>"]
 description = "Library for querying the Passivetotal v2 API."
 readme = "README.md"

@@ -1,6 +1,6 @@
-use {PassiveTotal, Result};
-
 use serde_json::Value;
+
+use {PassiveTotal, Result};
 
 const URL_DATA: &str = "/enrichment";
 const URL_OSINT: &str = "/enrichment/osint";
@@ -11,29 +11,10 @@ pub struct EnrichmentRequest<'a> {
     pt: &'a PassiveTotal,
 }
 
-pub struct EnrichmentData<'a> {
-    pt: &'a PassiveTotal,
-    url: &'a str,
-    query: String,
-}
-
-pub struct EnrichmentOsint<'a> {
-    pt: &'a PassiveTotal,
-    url: &'a str,
-    query: String,
-}
-
-pub struct EnrichmentMalware<'a> {
-    pt: &'a PassiveTotal,
-    url: &'a str,
-    query: String,
-}
-
-pub struct EnrichmentSubdomains<'a> {
-    pt: &'a PassiveTotal,
-    url: &'a str,
-    query: String,
-}
+request_struct!(EnrichmentData { query: String });
+request_struct!(EnrichmentOsint { query: String });
+request_struct!(EnrichmentMalware { query: String });
+request_struct!(EnrichmentSubdomains { query: String });
 
 impl<'a> EnrichmentRequest<'a> {
     pub fn data<S>(self, query: S) -> EnrichmentData<'a>
@@ -81,10 +62,10 @@ impl<'a> EnrichmentRequest<'a> {
     }
 }
 
-impl_send_query_valid_domain!(EnrichmentData);
-impl_send_query_valid_domain!(EnrichmentOsint);
-impl_send_query_valid_domain!(EnrichmentMalware);
-impl_send_query_valid_domain!(EnrichmentSubdomains);
+impl_send!(EnrichmentData);
+impl_send!(EnrichmentOsint);
+impl_send!(EnrichmentMalware);
+impl_send!(EnrichmentSubdomains);
 
 impl PassiveTotal {
     pub fn enrichment(&self) -> EnrichmentRequest {

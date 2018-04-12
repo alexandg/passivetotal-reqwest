@@ -1,14 +1,35 @@
-use {PassiveTotal, PassiveTotalError, Result};
+use std::str::FromStr;
 
+use serde::{Serialize, Serializer};
 use serde_json::Value;
 
-use std::collections::HashMap;
-use std::str::FromStr;
+use {PassiveTotal, PassiveTotalError, Result};
 
 const URL_SSL: &str = "/ssl-certificate";
 const URL_HISTORY: &str = "/ssl-certificate/history";
 const URL_KEYWORD: &str = "/ssl-certificate/search/keyword";
 const URL_SEARCH: &str = "/ssl-certificate/search";
+
+pub struct SslRequest<'a> {
+    pt: &'a PassiveTotal,
+}
+
+request_struct!(SslCertificate {
+    query: &'a str,
+});
+
+request_struct!(SslHistory {
+    query: &'a str
+});
+
+request_struct!(SslSearchField {
+    query: &'a str,
+    field: SslField,
+});
+
+request_struct!(SslSearchKeyword {
+    query: &'a str
+});
 
 /// Represents the available ssl search fields for ssl field searches
 #[derive(Debug)]
@@ -115,8 +136,13 @@ impl FromStr for SslField {
     }
 }
 
-pub struct SslRequest<'a> {
-    pt: &'a PassiveTotal,
+impl Serialize for SslField {
+    fn serialize<S>(&self, serializer: S) -> ::std::result::Result<S::Ok, S::Error>
+    where
+        S: Serializer,
+    {
+        serializer.serialize_str(self.as_str())
+    }
 }
 
 impl<'a> SslRequest<'a> {
@@ -124,7 +150,7 @@ impl<'a> SslRequest<'a> {
         SslCertificate {
             pt: self.pt,
             url: URL_SSL,
-            query: query,
+            query,
         }
     }
 
@@ -132,61 +158,32 @@ impl<'a> SslRequest<'a> {
         SslHistory {
             pt: self.pt,
             url: URL_HISTORY,
-            query: query,
+            query,
         }
     }
 
-    pub fn search(self, query: &'a str) -> SslSearch {
-        SslSearch {
+    pub fn search_keyword(self, query: &'a str) -> SslSearchKeyword {
+        SslSearchKeyword {
             pt: self.pt,
-            query: query,
-            field: None,
+            url: URL_KEYWORD,
+            query,
+        }
+    }
+
+    pub fn search_field(self, query: &'a str, field: SslField) -> SslSearchField {
+        SslSearchField {
+            pt: self.pt,
+            url: URL_SEARCH,
+            query,
+            field,
         }
     }
 }
 
-pub struct SslCertificate<'a> {
-    pt: &'a PassiveTotal,
-    url: &'a str,
-    query: &'a str,
-}
-
-pub struct SslHistory<'a> {
-    pt: &'a PassiveTotal,
-    url: &'a str,
-    query: &'a str,
-}
-
-pub struct SslSearch<'a> {
-    pt: &'a PassiveTotal,
-    query: &'a str,
-    field: Option<SslField>,
-}
-
-impl<'a> SslSearch<'a> {
-    pub fn field(&'a mut self, field: SslField) -> &mut SslSearch {
-        self.field = Some(field);
-        self
-    }
-
-    pub fn send(&self) -> Result<Value> {
-        let mut params: HashMap<&str, &str> = HashMap::new();
-        let url: &str;
-
-        params.insert("query", self.query);
-        if let Some(ref field) = self.field {
-            url = URL_SEARCH;
-            params.insert("field", field.as_str());
-        } else {
-            url = URL_KEYWORD;
-        }
-
-        self.pt.send_request_json_response(url, params)
-    }
-}
-
-impl_send_query!(SslCertificate);
-impl_send_query!(SslHistory);
+impl_send!(SslCertificate);
+impl_send!(SslHistory);
+impl_send!(SslSearchField);
+impl_send!(SslSearchKeyword);
 
 impl PassiveTotal {
     pub fn ssl(&self) -> SslRequest {

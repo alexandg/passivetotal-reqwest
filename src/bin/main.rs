@@ -201,11 +201,11 @@ fn handle_ssl_command(pt: &PassiveTotal, cmd: &ArgMatches) -> Result<json::Value
             let query = c.value_of("QUERY").unwrap();
             if let Some(f) = c.value_of("FIELD") {
                 match f.parse() {
-                    Ok(field) => pt.ssl().search(query).field(field).send()?,
+                    Ok(field) => pt.ssl().search_field(query, field).send()?,
                     Err(err) => return Err(err.into()),
                 }
             } else {
-                pt.ssl().search(query).send()?
+                pt.ssl().search_keyword(query).send()?
             }
         },
         _ => return Err("No valid subcommand provided to `ssl` command!".into()),
@@ -276,11 +276,11 @@ fn handle_whois_command(pt: &PassiveTotal, cmd: &ArgMatches) -> Result<json::Val
             let query = c.value_of("QUERY").unwrap();
             if let Some(f) = c.value_of("FIELD") {
                 match f.parse() {
-                    Ok(field) => pt.whois().search(query).field(field).send()?,
+                    Ok(field) => pt.whois().search_field(query, field).send()?,
                     Err(err) => return Err(err.into()),
                 }
             } else {
-                pt.whois().search(query).send()?
+                pt.whois().search_keyword(query).send()?
             }
         },
         ("data", Some(c)) => {
@@ -318,7 +318,7 @@ fn run(pt: &PassiveTotal, args: &ArgMatches) -> Result<()> {
         ("pdns", Some(cmd)) => {
             let query = cmd.value_of("QUERY").unwrap();
             if cmd.is_present("UNIQUE") {
-                pt.passive_dns(query).unique(true).send()?
+                pt.passive_dns_unique(query).send()?
             } else {
                 pt.passive_dns(query).send()?
             }

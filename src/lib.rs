@@ -48,6 +48,8 @@ extern crate chrono;
 extern crate reqwest;
 extern crate serde;
 #[macro_use]
+extern crate serde_derive;
+#[macro_use]
 extern crate serde_json;
 extern crate url;
 
@@ -87,7 +89,7 @@ impl PassiveTotal {
         PassiveTotal {
             username: username.into(),
             apikey: apikey.into(),
-            timeout: timeout,
+            timeout,
         }
     }
 
@@ -106,11 +108,11 @@ impl PassiveTotal {
         }
     }
 
-    fn send_request_json_response<T>(&self, url: &str, params: T) -> Result<Value>
+    fn send_request_json_response<T>(&self, endpoint: &str, params: T) -> Result<Value>
     where
         T: serde::ser::Serialize,
     {
-        let url = format!("{}{}", BASE_URL, url);
+        let url = format!("{}{}", BASE_URL, endpoint);
         let mut resp = reqwest::Client::builder()
             .timeout(self.timeout)
             .build()?

@@ -1,13 +1,30 @@
-use {PassiveTotal, PassiveTotalError, Result};
+use std::str::FromStr;
 
+use serde::{Serialize, Serializer};
 use serde_json::Value;
 
-use std::collections::HashMap;
-use std::str::FromStr;
+use {PassiveTotal, PassiveTotalError, Result};
 
 const URL_WHOIS: &str = "/whois";
 const URL_WHOIS_KEYWORD: &str = "/whois/search/keyword";
 const URL_WHOIS_SEARCH: &str = "/whois/search";
+
+pub struct WhoisRequest<'a> {
+    pt: &'a PassiveTotal,
+}
+
+request_struct!(WhoisInfo {
+    query: &'a str,
+});
+
+request_struct!(WhoisSearchField {
+    query: &'a str,
+    field: WhoisField,
+});
+
+request_struct!(WhoisSearchKeyword {
+    query: &'a str,
+});
 
 /// Represents the available WHOIS search fields for WHOIS field searches
 #[derive(Debug)]
@@ -54,8 +71,13 @@ impl FromStr for WhoisField {
     }
 }
 
-pub struct WhoisRequest<'a> {
-    pt: &'a PassiveTotal,
+impl Serialize for WhoisField {
+    fn serialize<S>(&self, serializer: S) -> ::std::result::Result<S::Ok, S::Error>
+    where
+        S: Serializer,
+    {
+        serializer.serialize_str(self.as_str())
+    }
 }
 
 impl<'a> WhoisRequest<'a> {
@@ -63,54 +85,31 @@ impl<'a> WhoisRequest<'a> {
         WhoisInfo {
             pt: self.pt,
             url: URL_WHOIS,
-            query: query,
+            query,
         }
     }
 
-    pub fn search(self, query: &'a str) -> WhoisSearch {
-        WhoisSearch {
+    pub fn search_field(self, query: &'a str, field: WhoisField) -> WhoisSearchField {
+        WhoisSearchField {
             pt: self.pt,
-            query: query,
-            field: None,
+            url: URL_WHOIS_SEARCH,
+            query,
+            field,
+        }
+    }
+
+    pub fn search_keyword(self, query: &'a str) -> WhoisSearchKeyword {
+        WhoisSearchKeyword {
+            pt: self.pt,
+            url: URL_WHOIS_KEYWORD,
+            query,
         }
     }
 }
 
-pub struct WhoisInfo<'a> {
-    pt: &'a PassiveTotal,
-    url: &'a str,
-    query: &'a str,
-}
-
-impl_send_query_valid_domain!(WhoisInfo);
-
-pub struct WhoisSearch<'a> {
-    pt: &'a PassiveTotal,
-    query: &'a str,
-    field: Option<WhoisField>,
-}
-
-impl<'a> WhoisSearch<'a> {
-    pub fn field(&'a mut self, field: WhoisField) -> &mut WhoisSearch {
-        self.field = Some(field);
-        self
-    }
-
-    pub fn send(&self) -> Result<Value> {
-        let mut params: HashMap<&str, &str> = HashMap::new();
-        let url: &str;
-
-        params.insert("query", self.query);
-        if let Some(ref field) = self.field {
-            url = URL_WHOIS_SEARCH;
-            params.insert("field", field.as_str());
-        } else {
-            url = URL_WHOIS_KEYWORD;
-        }
-
-        self.pt.send_request_json_response(url, params)
-    }
-}
+impl_send!(WhoisInfo);
+impl_send!(WhoisSearchField);
+impl_send!(WhoisSearchKeyword);
 
 impl PassiveTotal {
     pub fn whois(&self) -> WhoisRequest {

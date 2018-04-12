@@ -1,6 +1,6 @@
-use {PassiveTotalError, Result};
-
 use url::{Host, Url};
+
+use {PassiveTotalError, Result};
 
 // Check to see if a given `Host` is either a `Domain` or an `Ipv4`
 // and return it as a `String` or return an `Error`

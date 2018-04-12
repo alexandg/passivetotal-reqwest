@@ -1,9 +1,8 @@
-use {PassiveTotal, Result};
-
 use chrono::{DateTime, Utc};
+use serde::{Serialize, Serializer};
 use serde_json::Value;
 
-use std::collections::HashMap;
+use {PassiveTotal, Result};
 
 const URL_INFO: &str = "/account";
 const URL_HISTORY: &str = "/account/history";
@@ -13,8 +12,45 @@ const URL_TEAMSTREAM: &str = "/account/organization/teamstream";
 const URL_QUOTA: &str = "/account/quota";
 const URL_SOURCES: &str = "/account/sources";
 
+#[derive(Debug)]
+struct PtDate {
+    inner: DateTime<Utc>,
+}
+
 pub struct AccountRequest<'a> {
     pt: &'a PassiveTotal,
+}
+
+request_struct!(AccountQuota {});
+request_struct!(AccountInfo {});
+request_struct!(AccountHistory {});
+request_struct!(AccountMonitors {});
+request_struct!(AccountOrganization {});
+
+request_struct!(AccountSources {
+    #[serde(skip_serializing_if = "Option::is_none")]
+    source: Option<String>,
+});
+
+request_struct!(AccountTeamstream {
+    #[serde(skip_serializing_if = "Option::is_none")]
+    source: Option<String>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    datetime: Option<PtDate>,
+    #[serde(skip_serializing_if = "Option::is_none", rename = "type")]
+    typ: Option<String>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    focus: Option<String>,
+});
+
+impl Serialize for PtDate {
+    fn serialize<S>(&self, serializer: S) -> ::std::result::Result<S::Ok, S::Error>
+    where
+        S: Serializer,
+    {
+        let dt_str = format!("{}", self.inner.format("%F %T"));
+        serializer.serialize_str(&dt_str)
+    }
 }
 
 impl<'a> AccountRequest<'a> {
@@ -62,26 +98,6 @@ impl<'a> AccountRequest<'a> {
     }
 }
 
-pub struct AccountInfo<'a> {
-    pt: &'a PassiveTotal,
-    url: &'static str,
-}
-
-pub struct AccountHistory<'a> {
-    pt: &'a PassiveTotal,
-    url: &'static str,
-}
-
-pub struct AccountMonitors<'a> {
-    pt: &'a PassiveTotal,
-    url: &'static str,
-}
-
-pub struct AccountOrganization<'a> {
-    pt: &'a PassiveTotal,
-    url: &'static str,
-}
-
 impl<'a> AccountOrganization<'a> {
     pub fn teamstream(self) -> AccountTeamstream<'a> {
         AccountTeamstream {
@@ -95,15 +111,6 @@ impl<'a> AccountOrganization<'a> {
     }
 }
 
-pub struct AccountTeamstream<'a> {
-    pt: &'a PassiveTotal,
-    url: &'static str,
-    source: Option<String>,
-    datetime: Option<DateTime<Utc>>,
-    typ: Option<String>,
-    focus: Option<String>,
-}
-
 impl<'a> AccountTeamstream<'a> {
     pub fn source<S>(&mut self, source: S) -> &'a mut AccountTeamstream
     where
@@ -114,7 +121,7 @@ impl<'a> AccountTeamstream<'a> {
     }
 
     pub fn datetime<S>(&mut self, dt: DateTime<Utc>) -> &'a mut AccountTeamstream {
-        self.datetime = Some(dt);
+        self.datetime = Some(PtDate { inner: dt });
         self
     }
 
@@ -133,42 +140,6 @@ impl<'a> AccountTeamstream<'a> {
         self.focus = Some(focus.into());
         self
     }
-
-    pub fn send(&self) -> Result<Value> {
-        // Fix some borrowing issues
-        let dt_str: String;
-        let mut params: HashMap<&str, &str> = HashMap::new();
-
-        if let Some(ref src) = self.source {
-            params.insert("source", src);
-        }
-
-        if let Some(ref ty) = self.typ {
-            params.insert("type", ty);
-        }
-
-        if let Some(ref focus) = self.focus {
-            params.insert("focus", focus);
-        }
-
-        if let Some(ref dt) = self.datetime {
-            dt_str = format!("{}", dt.format("%F %T"));
-            params.insert("dt", &dt_str);
-        }
-
-        self.pt.send_request_json_response(self.url, params)
-    }
-}
-
-pub struct AccountQuota<'a> {
-    pt: &'a PassiveTotal,
-    url: &'static str,
-}
-
-pub struct AccountSources<'a> {
-    pt: &'a PassiveTotal,
-    url: &'static str,
-    source: Option<String>,
 }
 
 impl<'a> AccountSources<'a> {
@@ -179,22 +150,6 @@ impl<'a> AccountSources<'a> {
         self.source = Some(source.into());
         self
     }
-
-    pub fn send(&self) -> Result<Value> {
-        let params = if let Some(ref src) = self.source {
-            json!({ "source": src })
-        } else {
-            json!({})
-        };
-
-        self.pt.send_request_json_response(self.url, params)
-    }
-}
-
-impl PassiveTotal {
-    pub fn account(&self) -> AccountRequest {
-        AccountRequest { pt: self }
-    }
 }
 
 impl_send!(AccountInfo);
@@ -202,3 +157,11 @@ impl_send!(AccountHistory);
 impl_send!(AccountMonitors);
 impl_send!(AccountOrganization);
 impl_send!(AccountQuota);
+impl_send!(AccountTeamstream);
+impl_send!(AccountSources);
+
+impl PassiveTotal {
+    pub fn account(&self) -> AccountRequest {
+        AccountRequest { pt: self }
+    }
+}
