@@ -49,7 +49,6 @@ extern crate reqwest;
 extern crate serde;
 #[macro_use]
 extern crate serde_derive;
-#[macro_use]
 extern crate serde_json;
 extern crate url;
 
@@ -69,6 +68,8 @@ mod utils;
 mod whois;
 
 pub use error::{PassiveTotalError, Result};
+pub use ssl::SslField;
+pub use whois::WhoisField;
 
 const BASE_URL: &str = "https://api.passivetotal.org/v2";
 

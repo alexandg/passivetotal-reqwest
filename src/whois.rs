@@ -27,7 +27,7 @@ request_struct!(WhoisSearchKeyword {
 });
 
 /// Represents the available WHOIS search fields for WHOIS field searches
-#[derive(Debug)]
+#[derive(Clone, Debug)]
 pub enum WhoisField {
     Email,
     Domain,

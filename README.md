@@ -24,19 +24,6 @@ extern crate passivetotal_reqwest;
 use passivetotal_reqwest::PassiveTotal;
 ```
 
-To use the command line app first download the crate:
-
-```
-git clone https://github.com/alexandg/passivetotal-reqwest
-cd passivetotal-reqwest
-```
-
-then to build the command line app from the project root directory run:
-
-```
-cargo build --release
-```
-
 ### Configuration
 
 This crate requires a valid PassiveTotal API username and key. These can be
@@ -65,26 +52,6 @@ use passivetotal_reqwest::PassiveTotal;
 let pt = PassiveTotal::new("USERNAME", "APIKEY", Duration::from_secs(30));
 let resp = pt.passive_dns("www.passivetotal.org").send().unwrap();
 println!("{}", resp);
-```
-
-To use the command line client, assuming the executable has been added to your
-path:
-
-```
-passivetotal pdns "www.passivetotal.org"
-```
-
-For a list of all available command line subcommands run:
-
-```
-passivetotal --help
-```
-
-Usage information for each subcommand can be printed by passing `--help` after
-a chosen command. For example:
-
-```
-passivetotal pdns --help
 ```
 
 ### License

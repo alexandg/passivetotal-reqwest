@@ -1,22 +1,15 @@
 [package]
 name = "passivetotal-reqwest"
-version = "0.9.0"
+version = "0.9.1"
 authors = ["Geoffrey Alexander <geoff.i.alexander@gmail.com>"]
 description = "Library for querying the Passivetotal v2 API."
 readme = "README.md"
 license = "MIT"
 
 [dependencies]
-chrono = "0.4.0"
-clap = "2.25.0"
-error-chain = "0.11"
+chrono = "0.4"
 reqwest = "0.8"
 serde = "1.0"
 serde_derive = "1.0"
 serde_json = "1.0"
-toml = "0.4"
 url = "1.5"
-
-[[bin]]
-name = "passivetotal"
-path = "src/bin/main.rs"

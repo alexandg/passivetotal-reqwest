@@ -32,7 +32,7 @@ request_struct!(SslSearchKeyword {
 });
 
 /// Represents the available ssl search fields for ssl field searches
-#[derive(Debug)]
+#[derive(Clone, Debug)]
 pub enum SslField {
     IssuerSurname,
     SubjectOrganizationName,
